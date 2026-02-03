@@ -1,4 +1,5 @@
 const express = require("express")
+const cors=require("cors")
 const app = express()
 
 const dotenv = require("dotenv")
@@ -12,6 +13,7 @@ connectDB()
 
 // Add in middleware to handle request body as JSON
 app.use(express.json())
+app.use(cors())
 
 
 // Registering my root level routes

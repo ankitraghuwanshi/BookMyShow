@@ -6,12 +6,21 @@ const SALT_ROUNDS=10
 
 const handleRegister=async (req, res) => {
     try {
+        //verify email
         const isEmailValid = validator.validate(req.body.email)
-
         if (!isEmailValid) {
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
-                message: "Please enter a valid email"
+                message: "Email is not valid"
+            })   
+        }
+
+        //check if email is taken?
+        const isEmailTaken=await UserModel.findOne({email: req.body.email})
+        if (isEmailTaken) {
+            return res.status(404).json({
+                success: false,
+                message: "Email already taken!"
             })   
         }
 
@@ -25,9 +34,9 @@ const handleRegister=async (req, res) => {
         // Then save it to Database
         await user.save()
 
-        res.send({
+        return res.status(200).json({
             success: true,
-            message: "registration is successful",
+            message: "Registration is successful",
             user
         })
     } catch(error) {
@@ -61,7 +70,7 @@ const handleLogin=async(req, res)=>{
             })
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: "Successfully logged in!"
         })
