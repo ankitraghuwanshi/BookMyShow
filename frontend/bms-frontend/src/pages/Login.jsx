@@ -1,9 +1,25 @@
 import React from 'react'
-import { Button, Form, Input } from "antd";
-import { Link } from "react-router-dom";
-
+import { Button, Form, Input, message } from "antd";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from '../api/users';
 
 function Login() {
+  const navigate=useNavigate()
+  const onFinishLoginForm=async(values)=>{
+    try {
+      const responseData=await loginUser(values)
+      if(responseData.success){
+        message.success(responseData.message)
+        setTimeout(()=>{
+          navigate('/')
+        },1000)
+      }else{
+        message.error(responseData.message)
+      }
+    } catch (error) {
+      message.error(error)
+    }
+  }
   return (
     <>
     <header className="App-header">
@@ -13,9 +29,8 @@ function Login() {
         </section>
 
         <section className="right-section">
-          <Form layout="vertical">
-    
-          <Form.Item
+          <Form layout="vertical" onFinish={onFinishLoginForm}>
+            <Form.Item
               label="Email"
               htmlFor="email"
               name="email"
