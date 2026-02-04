@@ -213,7 +213,6 @@ hr{
   color:#999;
   border-color: #ddd;
   cursor:not-allowed;
-  pointer-events: none;
 }
 .screen-div{
   max-width: 75%;

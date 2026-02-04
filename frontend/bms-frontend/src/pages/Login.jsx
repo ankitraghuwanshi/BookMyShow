@@ -10,6 +10,7 @@ function Login() {
       const responseData=await loginUser(values)
       if(responseData.success){
         message.success(responseData.message)
+        localStorage.setItem("token", responseData.token)
         setTimeout(()=>{
           navigate('/')
         },1000)
