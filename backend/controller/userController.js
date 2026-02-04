@@ -1,4 +1,5 @@
 const bcrypt=require('bcryptjs')
+const jwt=require('jsonwebtoken')
 const UserModel = require("../model/userModel")
 const validator = require("email-validator")
 
@@ -34,7 +35,7 @@ const handleRegister=async (req, res) => {
         // Then save it to Database
         await user.save()
 
-        return res.status(200).json({
+        res.status(200).json({
             success: true,
             message: "Registration is successful",
             user
@@ -66,13 +67,29 @@ const handleLogin=async(req, res)=>{
         if(!isPasswordValid) {
             return res.status(404).json({
                 success: false,
-                message: "No user/pass combo found"
+                message: "Incorrect Password"
             })
         }
 
-        return res.status(200).json({
+        // Start my JWT Signing process
+        const token = jwt.sign(
+            // FIrst argument is the extra data stored in JWT
+            {
+                userId: user._id
+            },
+            // Second argument is the secret
+            process.env.JWT_SECRET
+            ,
+            // Sets the expiry of the JWT
+            {
+                expiresIn: "1d"
+            }
+        )
+
+        res.status(200).json({
             success: true,
-            message: "Successfully logged in!"
+            message: "Successfully logged in!",
+            token
         })
     } catch(error) {
         res.status(500).json({
@@ -82,7 +99,34 @@ const handleLogin=async(req, res)=>{
     }
 }
 
+const handleGetCurrentUser=async(req, res)=>{
+    try {
+        // Try to get the req.body.userid from the req object
+        const userId = req.user.userId
+
+        if(!userId) {
+            return res.status(500).json({
+                success: false,
+                message: "Something went wrong! Try again"
+            })
+        }
+
+        const user = await UserModel.findById(userId).select("-password")
+
+        res.status(200).json({
+            success: true,
+            user
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Something went wrong! Try again"
+        })
+    }
+}
+
 module.exports={
     handleRegister,
-    handleLogin
+    handleLogin,
+    handleGetCurrentUser
 }
