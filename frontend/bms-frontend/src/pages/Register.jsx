@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Form, Input, message } from "antd";
+import { Button, Form, Input, message, Radio } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../api/users";
 
@@ -7,8 +7,15 @@ function Register() {
   const navigate = useNavigate();
 
   const onFinishRegisterForm = async (values) => {
+    const { isAdmin, isPartner, ...restValues }=values
+    if(isAdmin){
+      restValues.role="Admin"
+    }
+    else if(isPartner){
+      restValues.role="Partner"
+    }
     try {
-      const responseData = await registerUser(values);
+      const responseData = await registerUser(restValues);
       if (responseData.success) {
         message.success(responseData.message);
         setTimeout(() => {
@@ -64,6 +71,28 @@ function Register() {
               placeholder="Enter your password"
               className="py-2"
             />
+          </Form.Item>
+
+          <Form.Item
+            label="Register as an Admin?"
+            name="isAdmin"
+            rules={[{ required: true, message: "Please select an option!" }]}
+          >
+            <Radio.Group className="flex gap-6">
+              <Radio value={true}>Yes</Radio>
+              <Radio value={false}>No</Radio>
+            </Radio.Group>
+          </Form.Item>
+
+          <Form.Item
+            label="Register as a Partner?"
+            name="isPartner"
+            rules={[{ required: true, message: "Please select an option!" }]}
+          >
+            <Radio.Group className="flex gap-6">
+              <Radio value={true}>Yes</Radio>
+              <Radio value={false}>No</Radio>
+            </Radio.Group>
           </Form.Item>
 
           <Form.Item>

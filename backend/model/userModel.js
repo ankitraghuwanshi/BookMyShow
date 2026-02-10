@@ -14,10 +14,15 @@ const userSchemaRules = {
         required: true,
         minLenth: 5 
     },
-    isAdmin: {
-        type: Boolean,
+    // isAdmin: {
+    //     type: Boolean,
+    //     required: false,
+    //     default: false
+    // }
+    role:{
+        type: String,
         required: false,
-        default: false
+        default: "User"  //Partner, Admin, user
     }
 }
 

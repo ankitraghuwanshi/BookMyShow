@@ -1,4 +1,3 @@
-import React from "react";
 import { Button, Form, Input, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../api/users";
@@ -12,9 +11,22 @@ function Login() {
       if (responseData.success) {
         message.success(responseData.message);
         localStorage.setItem("token", responseData.token);
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
+        if(responseData.role === 'Admin'){
+          setTimeout(() => {
+            navigate("/admin")
+            return
+          }, 1000);
+        }else if(responseData.role==='Partner'){
+          setTimeout(() => {
+            navigate("/partner")
+            return
+          }, 1000);
+        }else{
+          setTimeout(() => {
+            navigate("/")
+            return
+          }, 1000);
+        }
       } else {
         message.error(responseData.message);
       }

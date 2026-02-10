@@ -1,37 +1,46 @@
-import React, { useEffect, useState } from "react";
-import { Button, Table } from "antd";
-import moment from 'moment'
+import React, { useEffect, useState, useCallback } from "react";
+import { Button, Table, message } from "antd";
+import moment from 'moment';
 import { hideLoading, showLoading } from "../redux/loaderSlice";
 import { getAllMovies } from "../api/movies";
 import { useDispatch } from "react-redux";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-//import MovieForm from "./MovieForm";
-//import DeleteMovieModal from "./DeleteMovieModal";
+import MovieForm from "./MovieForm";
+import DeleteMovieModal from "./DeleteMovieModal";
 
 function MovieList() {
-  //const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [movies, setMovies] = useState([]);
-  //const [selectedMovie, setSelectedMovie] = useState(null);
-  //const [formType, setFormType] = useState("add");
-  //const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState(null);
+  const [formType, setFormType] = useState("add");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const dispatch = useDispatch();
 
-  const getData = async () => {
-    dispatch(showLoading());
-    const response = await getAllMovies();
-    setMovies(
-      response.movies.map((movie) => ({
-        ...movie,
-        key: movie._id,
-      }))
-    );
-    dispatch(hideLoading());
-  };
+  const getData = useCallback(async () => {
+    try {
+      dispatch(showLoading());
+      const response = await getAllMovies();
+      if (response.success) {
+        setMovies(
+          response.movies.map((movie) => ({
+            ...movie,
+            key: movie._id,
+          }))
+        );
+      } else {
+        message.error(response.message || "Failed to fetch movies");
+      }
+    } catch (error) {
+      message.error(error.message || "Failed to fetch movies");
+    } finally {
+      dispatch(hideLoading());
+    }
+  }, [dispatch]);
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [getData]);
 
   const tableHeadings = [
     {
@@ -41,7 +50,7 @@ function MovieList() {
         <img
           src={poster}
           alt="poster"
-          className="w-[75px] h-[115px] object-cover rounded-md"
+          className="w-18.75 h-28.75 object-cover rounded-md"
         />
       ),
     },
@@ -70,7 +79,7 @@ function MovieList() {
     {
       title: "Release Date",
       dataIndex: "releaseDate",
-      render: (date) => moment(date).format("MM-DD-YYYY") 
+      render: (date) => moment(date).format("YYYY-MM-DD"),
     },
     {
       title: "Action",
@@ -78,9 +87,9 @@ function MovieList() {
         <div className="flex gap-2">
           <Button
             onClick={() => {
-              //setIsModalOpen(true);
-              //setSelectedMovie(movie);
-              //setFormType("edit");
+              setIsModalOpen(true);
+              setSelectedMovie(movie);
+              setFormType("edit");
             }}
           >
             <EditOutlined />
@@ -89,8 +98,8 @@ function MovieList() {
           <Button
             danger
             onClick={() => {
-              //setIsDeleteModalOpen(true);
-              //setSelectedMovie(movie);
+              setIsDeleteModalOpen(true);
+              setSelectedMovie(movie);
             }}
           >
             <DeleteOutlined />
@@ -107,9 +116,9 @@ function MovieList() {
         <Button
           type="primary"
           onClick={() => {
-            //setIsModalOpen(true);
-            //setFormType("add");
-            //setSelectedMovie(null);
+            setIsModalOpen(true);
+            setFormType("add");
+            setSelectedMovie(null);
           }}
         >
           Add Movie
@@ -126,7 +135,7 @@ function MovieList() {
       </div>
 
       {/* Add / Edit Modal */}
-      {/* {isModalOpen && (
+      {isModalOpen && (
         <MovieForm
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
@@ -135,10 +144,10 @@ function MovieList() {
           setSelectedMovie={setSelectedMovie}
           getData={getData}
         />
-      )} */}
+      )}
 
       {/* Delete Modal */}
-      {/* {isDeleteModalOpen && (
+      {isDeleteModalOpen && (
         <DeleteMovieModal
           isDeleteModalOpen={isDeleteModalOpen}
           selectedMovie={selectedMovie}
@@ -146,7 +155,7 @@ function MovieList() {
           setSelectedMovie={setSelectedMovie}
           getData={getData}
         />
-      )} */}
+      )} 
     </div>
   );
 }

@@ -56,8 +56,52 @@ const updateMovie=async (req, res) => {
     }
 }
 
+const getAllMoviesBySearchText=async (req, res) => {
+    try {
+        if (req.params.text && req.params.text !== "undefined") {
+            const movies = await MovieModel.find({ "movieName": { "$regex": req.params.text, "$options": "i" }})
+
+            res.status(200).json({
+                success: true,
+                message: "Movies fetched!",
+                movies
+            })
+        } else {
+            const movies = await MovieModel.find()
+            res.status(200).json({
+                success: true,
+                message: "Movies fetched!",
+                movies
+            })
+        }
+    } catch(e) {
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        })
+    }
+}
+
+const getMovieById=async (req, res) => {
+    try{
+        const movie = await MovieModel.findById(req.params.id);
+        res.status(200).json({
+            success: true,
+            message: "Movie fetched successfully!",
+            data: movie
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        })
+    }
+}
+
 module.exports={
     addMovie,
     getAllMovies,
-    updateMovie
+    updateMovie,
+    getAllMoviesBySearchText,
+    getMovieById
 }

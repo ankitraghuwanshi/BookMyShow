@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { getCurrentUser } from "../api/users";
 import { useNavigate } from "react-router-dom";
 import { message, Layout, Menu } from "antd";
@@ -64,19 +64,25 @@ function ProtectedRoute({ children }) {
     },
   ];
 
-  const getValidUser = async () => {
+  const getValidUser = useCallback(async () => {
     try {
       dispatch(showLoading());
       const response = await getCurrentUser();
-      dispatch(setUser(response.user));
-      dispatch(hideLoading());
+      if (response.success && response.user) {
+        dispatch(setUser(response.user));
+      } else {
+        dispatch(setUser(null));
+        message.error(response.message || "Failed to get user");
+        navigate("/login");
+      }
     } catch (error) {
       dispatch(setUser(null));
-      dispatch(hideLoading());
       message.error(error.message || "Session expired");
       navigate("/login");
+    } finally {
+      dispatch(hideLoading());
     }
-  };
+  }, [dispatch, navigate]);
 
   useEffect(() => {
     if (localStorage.getItem("token")) {
@@ -84,7 +90,7 @@ function ProtectedRoute({ children }) {
     } else {
       navigate("/login");
     }
-  }, [navigate]);
+  }, [getValidUser, navigate]);
 
   return (
     user && (

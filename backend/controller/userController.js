@@ -89,7 +89,8 @@ const handleLogin=async(req, res)=>{
         res.status(200).json({
             success: true,
             message: "Successfully logged in!",
-            token
+            token,
+            role: user.role
         })
     } catch(error) {
         res.status(500).json({

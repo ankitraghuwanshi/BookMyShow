@@ -29,8 +29,28 @@ const getAllMovies = async () => {
     }
 }
 
+const getAllMoviesBySearchText = async (values) => {
+    try {
+        const response = await axiosInstance.get(`/api/movies/get-all-movies-by-search-text/${values}`)
+        return response.data
+    } catch (error) {
+        throw error.response?.data?.message || "Something went wrong"
+    }
+}
+
+const getMovieById = async (id) => {
+    try{
+        const response = await axiosInstance.get(`/api/movies/movie/${id}`)
+        return response.data;
+    }catch(err){
+        return err.response
+    }
+}
+
 export {
     addMovie,
     getAllMovies,
-    updateMovie
+    updateMovie,
+    getAllMoviesBySearchText,
+    getMovieById
 }
