@@ -10,6 +10,8 @@ import Partner from './pages/Partner'
 import SingleMovie from './pages/SingleMovie'
 import Loader from './pages/Loader'
 import BookShow from './pages/BookShow'
+import Forget from './pages/Forget'
+import Reset from './pages/Reset'
 
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
@@ -33,9 +35,12 @@ function App() {
               <Elements stripe={stripePromise}>
                 <BookShow />
               </Elements>
-            </ProtectedRoute>}/>
+            </ProtectedRoute>}
+          />
           <Route path='/register' element={<Register />}/>
           <Route path='/login' element={<Login />}/>
+          <Route path='/forget' element={<Forget />} />
+          <Route path='/reset' element={<Reset />} />
         </Routes>
       </BrowserRouter>
     </Provider>

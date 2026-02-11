@@ -90,6 +90,15 @@ function Login() {
             Register Here
           </Link>
         </p>
+        <p className="text-center text-sm text-gray-600 mt-4">
+          Forgot Password?{" "}
+          <Link 
+            to="/forget"
+            className="font-medium text-[#646cff] hover:text-[#535bf2] no-underline"
+          >
+            Click Here
+          </Link>
+        </p>
       </div>
     </div>
   );
