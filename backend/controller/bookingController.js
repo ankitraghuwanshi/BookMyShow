@@ -2,66 +2,70 @@ const BookingModel = require("../model/bookingModel");
 const ShowModel = require("../model/showModel");
 const stripe = require('stripe')(process.env.STRIPE_KEY);
 
-const makePayment=async (req, res) => {
-    try{
-        const {token, amount} = req.body;
-        // const customer = await stripe.customers.create({
-        //     email: token.email,
-        //     source: token.id
-        // });
+const makePayment = async (req, res) => {
+    try {
+        const { amount, showId, seats, email } = req.body;
 
-        // This is what confirms that stripe has charged the card
-        // which the user has provided from frontend
+        // Create payment intent with metadata
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: amount,
+            amount: amount, // amount in cents
             currency: 'usd',
-            // customer: customer.id,
             payment_method_types: ['card'],
-            receipt_email: token.email,
-            description: "Token has been assigned to the movie!"
+            receipt_email: email,
+            metadata: {
+                showId: showId,
+                seats: seats.join(', '),
+                userId: req.user.userId
+            },
+            description: "Movie ticket booking"
         });
-        
-        const transactionId = paymentIntent.id;
 
         res.send({
             success: true,
-            message: "Payment Successful! Ticket(s) booked!",
-            data: transactionId
+            message: "Payment intent created successfully!",
+            data: {
+                clientSecret: paymentIntent.client_secret,
+                transactionId: paymentIntent.id
+            }
         });
-    }catch(err){
+    } catch (err) {
         res.send({
             success: false,
             message: err.message
-        })
+        });
     }
-}
+};
 
-const bookShow=async (req, res) => {
-    try{
+const bookShow = async (req, res) => {
+    try {
         const newBooking = new BookingModel(req.body);
         await newBooking.save();
 
         const show = await ShowModel.findById(req.body.show).populate("movie");
         const updatedBookedSeats = [...show.bookedSeats, ...req.body.seats];
-        await ShowModel.findByIdAndUpdate(req.body.show, { bookedSeats: updatedBookedSeats });
+
+        await ShowModel.findByIdAndUpdate(req.body.show, {
+            bookedSeats: updatedBookedSeats
+        });
+
         res.send({
             success: true,
             message: 'New Booking done!',
             data: newBooking
         });
-    }catch(err){
+    } catch (err) {
         res.send({
             success: false,
             message: err.message
         });
     }
-}
+};
 
-const getAllBooking=async (req, res) => {
-    try{
-        const bookings = await BookingModel.find({ user: req.body.userId })
-        .populate("user")
-        .populate("show")
+const getAllBooking = async (req, res) => {
+    try {
+        const bookings = await BookingModel.find({ user: req.user.userId })
+            .populate("user")
+            .populate("show")
             .populate({
                 path: "show",
                 populate: {
@@ -76,23 +80,22 @@ const getAllBooking=async (req, res) => {
                     model: "theatres"
                 }
             });
-        
+
         res.send({
             success: true,
             message: "Bookings fetched!",
             data: bookings
-        })
-
-    }catch(err){
+        });
+    } catch (err) {
         res.send({
             success: false,
             message: "Internal Server error"
-        })
+        });
     }
-}
+};
 
-module.exports={
+module.exports = {
     makePayment,
     bookShow,
     getAllBooking
-}
+};
