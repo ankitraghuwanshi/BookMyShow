@@ -1,33 +1,51 @@
-const express = require("express")
-const cors=require("cors")
-const app = express()
+const express = require("express");
+const cors = require("cors");
+const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
+const dotenv = require("dotenv");
 
-const dotenv = require("dotenv")
-dotenv.config()
+dotenv.config();
 
-const userRouter = require("./routes/userRoute")
-const movieRouter = require("./routes/movieRoute")
-const theatreRouter = require("./routes/theatreRoute")
-const showsRouter = require("./routes/showRoute")
-const bookingRouter = require("./routes/bookingRoute")
+const app = express();
 
-const {connectDB } = require("./config/db")
-connectDB()
+const userRouter = require("./routes/userRoute");
+const movieRouter = require("./routes/movieRoute");
+const theatreRouter = require("./routes/theatreRoute");
+const showsRouter = require("./routes/showRoute");
+const bookingRouter = require("./routes/bookingRoute");
 
-
-// Add in middleware to handle request body as JSON
-app.use(express.json())
-app.use(cors())
+const { connectDB } = require("./config/db");
+connectDB();
 
 
-// Registering my root level routes
-app.use("/api/user", userRouter)
-app.use("/api/movies", movieRouter)
-app.use("/api/theatres", theatreRouter)
-app.use("/api/shows", showsRouter)
-app.use("/api/bookings", bookingRouter)
+//Security middleware (PUT HELMET HERE)
+app.use(helmet());
+
+//Body parser
+app.use(express.json());
+
+//CORS
+app.use(cors());
+
+
+//Rate limiter
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: "Too many requests, please try again later.",
+});
+
+app.use("/api", apiLimiter);
+
+
+// Routes
+app.use("/api/user", userRouter);
+app.use("/api/movies", movieRouter);
+app.use("/api/theatres", theatreRouter);
+app.use("/api/shows", showsRouter);
+app.use("/api/bookings", bookingRouter);
 
 
 app.listen(process.env.PORT, () => {
-    console.log("Backend application has started!")
-})
+    console.log("Backend application has started!");
+});
