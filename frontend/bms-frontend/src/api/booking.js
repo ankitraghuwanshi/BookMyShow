@@ -1,9 +1,14 @@
 import { axiosInstance } from "./axios";
 
-// This is the API where I need to confirm my payment which has been started from frontend
-export const makePayment = async (token, amount) => {
+// Create payment intent
+export const makePayment = async (amount, showId, seats, email) => {
     try {
-        const response = await axiosInstance.post('/api/bookings/make-payment', { token, amount });
+        const response = await axiosInstance.post('/api/bookings/make-payment', {
+            amount,
+            showId,
+            seats,
+            email
+        });
         return response.data;
     } catch (err) {
         return {
@@ -11,7 +16,7 @@ export const makePayment = async (token, amount) => {
             message: err.response?.data?.message || err.message || "Payment failed"
         };
     }
-}
+};
 
 export const bookShow = async (payload) => {
     try {
@@ -23,7 +28,7 @@ export const bookShow = async (payload) => {
             message: err.response?.data?.message || err.message || "Booking failed"
         };
     }
-}
+};
 
 export const getAllBookings = async () => {
     try {
@@ -35,4 +40,4 @@ export const getAllBookings = async () => {
             message: err.response?.data?.message || err.message || "Failed to fetch bookings"
         };
     }
-}
+};
