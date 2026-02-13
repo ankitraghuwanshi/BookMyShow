@@ -28,31 +28,31 @@ function App() {
         <Suspense fallback={<Loader />}>
           <Routes>
             <Route path='/' element={
-              <ProtectedRoute>
+              <ProtectedRoute role='User'>
                 <Home />
               </ProtectedRoute>
             }/>
 
             <Route path='/admin' element={
-              <ProtectedRoute>
+              <ProtectedRoute role='Admin'>
                 <Admin />
               </ProtectedRoute>
             }/>
 
             <Route path='/partner' element={
-              <ProtectedRoute>
+              <ProtectedRoute role='Partner'>
                 <Partner/>
               </ProtectedRoute>
             }/>
 
             <Route path="/movie/:id" element={
-              <ProtectedRoute>
+              <ProtectedRoute role='User'>
                 <SingleMovie/>
               </ProtectedRoute>
             }/>
 
             <Route path="/book-show/:id" element={
-              <ProtectedRoute>
+              <ProtectedRoute role='User'>
                 <Elements stripe={stripePromise}>
                   <BookShow />
                 </Elements>

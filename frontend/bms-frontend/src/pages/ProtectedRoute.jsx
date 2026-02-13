@@ -13,8 +13,9 @@ import {
 import { Link } from "react-router-dom";
 import { setUser } from "../redux/userSlice";
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, role }) {
   const { user } = useSelector((state) => state.users);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -91,6 +92,13 @@ function ProtectedRoute({ children }) {
       navigate("/login");
     }
   }, [getValidUser, navigate]);
+
+  // Role Protection
+  useEffect(() => {
+    if (user && role && user.role !== role) {
+      navigate("/login");
+    }
+  }, [user, role, navigate]);
 
   return (
     user && (
